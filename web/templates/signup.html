@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cadastre seu número</title>
+    <link
+      rel="stylesheet"
+      href="{{ request.url_for('static', path='style.css') }}"
+    />
+  </head>
+  <body>
+    <h1>Cadastre seu número de telefone</h1>
+    <form action="/send-code" method="post">
+      <label for="phone">Número de telefone (com +55...):</label>
+      <input type="text" id="phone" name="phone" required />
+      <button type="submit">Enviar código</button>
+      <a href="/login">Já possuo login</a>
+    </form>
+    <p style="color: green">{{ success_message }}</p>
+    <p style="color: red">{{ error_message }}</p>
+  </body>
+</html>
