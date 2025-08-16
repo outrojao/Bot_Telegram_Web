@@ -110,12 +110,6 @@ async def verify_code(request: Request, phone: str = Form(...), code: str = Form
 
     try:
         await client.sign_in(phone=phone, code=code, phone_code_hash=phone_code_hash)
-        # session_string = client.session.save()
-
-        # save_session(phone, session_string)
-        # session_path = get_session_path(
-        #     get_session(phone)
-        # )
         
         return templates.TemplateResponse("set_bot.html", {
                     "request": request,
@@ -127,15 +121,7 @@ async def verify_code(request: Request, phone: str = Form(...), code: str = Form
             "request": request,
             "error_message": f"Erro no cadastro: {e}"
         })
-        
-    # finally:
-    #     if session_path:
-    #         encrypt_and_hash_session(session_path)
-    #     else:
-    #         return templates.TemplateResponse("code.html", {
-    #             "request": request,
-    #             "error_message": "Erro no caminho da sessão"
-    #         })
+
          
 @app.post("/set_bot", response_class=HTMLResponse)
 async def set_bot(request: Request, phone: str = Form(...), prompt: str = Form(...)):
@@ -143,12 +129,21 @@ async def set_bot(request: Request, phone: str = Form(...), prompt: str = Form(.
         data = temp_data.get(phone)
         client = data["client"]
         session_string = client.session.save()
+        session_path = None
 
         save_session(phone, session_string, prompt)
-        
-        session_path = get_session_path(
-            get_session(phone)
-        )   
+
+        session_data = get_session(phone)
+        if not session_data or "session_name" not in session_data:
+            print("[DEBUG] session_data inválido ou session_name ausente.")
+            return templates.TemplateResponse("set_bot.html", {
+                "request": request,
+                "error_message": "Erro ao recuperar dados da sessão."
+            })
+
+        session_path = get_session_path(session_data["session_name"])
+        print(f"[DEBUG] session_path atualizado: {session_path}")
+
         asyncio.create_task(start_userbot(client, session_path, prompt))
         temp_data.pop(phone, None)
         return templates.TemplateResponse("set_bot.html", {
@@ -161,7 +156,7 @@ async def set_bot(request: Request, phone: str = Form(...), prompt: str = Form(.
             "error_message": f"Erro ao iniciar bot: {e}"
         })
     finally:
-        if session_path:
+        if session_path is not None:
             encrypt_and_hash_session(session_path)
         else:
             return templates.TemplateResponse("set_bot.html", {

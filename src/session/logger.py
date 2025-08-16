@@ -38,16 +38,22 @@ def log_session(phone: str, session_name: str, prompt: str):
         json.dump(logs, f, indent=4, ensure_ascii=False)
         
 def get_session(phone):
+    print(f"[DEBUG] Procurando sessão para o telefone: {phone}")
     if not os.path.exists(LOG_FILE):
+        print("[DEBUG] Arquivo de log não encontrado.")
         return None
 
     try:
         with open(LOG_FILE, "r", encoding="utf-8") as f:
             logs = json.load(f)
-    except (json.JSONDecodeError, IOError):
+            print(f"[DEBUG] Logs carregados: {logs}")
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"[DEBUG] Erro ao carregar logs: {e}")
         return None
 
     entry = logs.get(phone)
-    if entry: return entry
-        # return entry.get("session_name")
+    if entry:
+        print(f"[DEBUG] Sessão encontrada: {entry}")
+        return entry
+    print("[DEBUG] Nenhuma sessão encontrada para o telefone.")
     return None

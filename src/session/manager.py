@@ -40,9 +40,16 @@ def decrypt_session(session_path):
         f.write(decrypted)
 
 def get_session_path(session_name):
+    print(f"[DEBUG] Recebendo session_name: {session_name}")
+    if not session_name:
+        print("[DEBUG] session_name é None ou inválido.")
+        return None
+
     if not session_name.endswith(".session"):
         session_name += ".session"
-    return os.path.join(SESSIONS_DIR, session_name)
+    session_path = os.path.join(SESSIONS_DIR, session_name)
+    print(f"[DEBUG] Caminho da sessão gerado: {session_path}")
+    return session_path
 
 def get_session_hash_path(session_name):
     if not session_name.endswith(".session.hash"):
